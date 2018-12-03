@@ -1,0 +1,170 @@
+1、String s=new String(“xyz”); 创建了几个object对象
+
+这个跟常量池没有关系，只要是new，都是重新分配堆空间，如果不区分栈和堆，这里创建了1个String Object。如果是从jvm角度来说的话，它是创建了两个对象，String s是在栈里创建了一个变量，new String("xyz")是在堆里创建了一个对象并被s引用到。
+如果是String s = "xyz"，那就要看常量池里有没有"xyz"，如果有直接引用，如果没有则创建再引用
+这里"xyz"本身就是pool中的一个对象，而在运行时执行new String()时，将pool中的对象复制一份放到heap中，并且把heap中的这个对象的引用交给s持有。ok，这条语句就创建了2个String对象。
+这时用==判断就可知，虽然两个对象的"内容"相同(equals()判断)，但两个引用变量所持有的引用不同
+补充一个面试题：String str = "aaa" + new String("bbb")创建了几个String对象？
+ "aa"一个对象   new Sring()一个对象  "bbb"一个对象 "aa" + new String("bbb");一个对象
+  1、栈区（stack）—由编译器自动分配释放，存放函数的参数值，局部变量的值等。其  
+  操作方式类似于数据结构中的栈。  
+  2、堆区（heap — 一般由程序员分配释放，若程序员不释放，程序结束时可能由OS回收。注意它与数据结构中的堆是两回事，分配方式倒是类似于链表，呵呵。  
+  3、全局区（静态区）（static）—，全局变量和静态变量的存储是放在一块的，初始化的  
+  全局变量和静态变量在一块区域，未初始化的全局变量和未初始化的静态变量在相邻的另  
+  一块区域。程序结束后由系统释放。  
+  4、文字常量区—常量字符串就是放在这里的。程序结束后由系统释放  
+  5、程序代码区—存放函数体的二进制代码。  
+
+2、冒泡排序，
+1、从小到大
+int[] a ={2,46,18,5,98};
+		int temp;
+		for (int i = 0; i < a.length; i++) {
+			for (int j = i+1; j < a.length; j++) {
+				if (a[i]>a[j]) {
+					temp=a[i];
+					a[i]=a[j];
+					a[j]=temp;
+				}
+			}
+			System.out.print(a[i]+",");
+		}
+2、从大小
+int[] a ={2,46,18,5,98};
+		int temp;
+		for (int i = 0; i < a.length; i++) {
+			for (int j = i+1; j < a.length; j++) {
+				if (a[i]<a[j]) {
+					temp=a[i];
+					a[i]=a[j];
+					a[j]=temp;
+				}
+			}
+			System.out.print(a[i]+",");
+		}
+
+3、HashMap、HashTable、ConcurrentHashMap的区别
+
+HashMap实现了Map接口，实现了将唯一键隐射到特定值上。允许一个NULL键和多个NULL值。非线程安全。
+HashTable类似于HashMap，但是不允许NULL键和NULL值，比HashMap慢，因为它是同步的。HashTable是一个线程安全的类，它使用synchronized来锁住整张Hash表来实现线程安全，即每次锁住整张表让线程独占。
+ConcurrentHashMap允许多个修改操作并发进行，其关键在于使用了锁分离技术。它使用了多个锁来控制对hash表的不同部分进行的修改。ConcurrentHashMap内部使用段(Segment)来表示这些不同的部分，每个段其实就是一个小的Hashtable，它们有自己的锁。只要多个修改操作发生在不同的段上，它们就可以并发进行。
+
+4、(^\s)|(\s$) 正则表达式作用
+
+^是开始
+\s是空白
+*表示0个或多个
+|是或者
+$是结尾
+g表示全局
+意为去除目标字符串左右两边的空白字符.
+举个比方: " hello world " 结果为 "hello world" 注意字符串中间的空格没有被替换元字符解释:^:匹配开头\s:匹配空白字符*:匹配零个或者多个前导字符,|:理解为或者$:匹配结尾字符g:执行全局匹配,而不是找到第一个匹配就停止.
+
+5、Oracle重置序列(不删除重建方式)
+
+Oracle中一般将自增sequence重置为初始1时，都是删除再重建，这种方式有很多弊端，依赖它的函数和存储过程将失效，需要重新编译。 
+不过还有种巧妙的方式，不用删除，利用步长参数，先查出sequence的nextval，记住，把递增改为负的这个值（反过来走），然后再改回来。
+假设需要修改的序列名：seq_name 
+1、select seq_name.nextval from dual; //假设得到结果5656 
+2、alter sequence seq_name increment by -5655; //注意是-(n-1) 
+3、select seq_name.nextval from dual;//再查一遍，走一下,重置为1了 
+4、alter sequence seq_name increment by 1;//还原
+
+6、重载与重写区别
+
+方法重载是指同一个类中的多个方法具有相同的名字,但这些方法具有不同的参数列表,即参数的数量或参数类型不能完全相同
+方法重写是存在子父类之间的,子类定义的方法与父类中的方法具有相同的方法名字,相同的参数表和相同的返回类型 
+      注: 
+        (1)子类中不能重写父类中的final方法 
+        (2)子类中必须重写父类中的abstract方法 
+
+7、Java多线程
+
+Java多线程实现的方式有四种
+1.继承Thread类，重写run方法
+2.实现Runnable接口，重写run方法，实现Runnable接口的实现类的实例对象作为Thread构造函数的target
+3.通过Callable和FutureTask创建线程
+4.通过线程池创建线程
+前面两种可以归结为一类：无返回值，原因很简单，通过重写run方法，run方式的返回值是void，所以没有办法返回结果 
+后面两种可以归结成一类：有返回值，通过Callable接口，就要实现call方法，这个方法的返回值是Object，所以返回的结果可以放在Object对象中
+
+8、sql：怎样查询数值最大的五条记录
+
+insert into test values(1,22);
+insert into test values(2,32);
+insert into test values(3,72);
+
+insert into test values(4,12);
+insert into test values(5,52);
+insert into test values(6,76);
+
+select * from (select a.* ,row_number() over(order by age desc) rk  from test a) rkwhere rk<=5;
+
+9、Java算法——判断一个数是否是回文数
+方法一：
+//回文数：是一种数字。如：98789, 这个数字正读是98789,倒读也是98789
+//正读倒读一样，所以这个数字就是回文数
+
+import java.util.Scanner;
+public class HuiWenShu {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		System.out.println("请输入一个整数：");
+		int num = sc.nextInt();
+		String str1 = num + "";
+		StringBuilder str2 = new StringBuilder(str1);
+		str2.reverse();
+		int count = 0;
+		for (int i = 0; i < str1.length(); i++) {
+			if (str1.charAt(i) != str2.charAt(i)) {
+				System.out.println(str1 + "不是回文数");
+				break;
+			} else {
+				count++;
+			}
+		}
+		if (count == str1.length()) {
+			System.out.println(str1 + "是回文数");
+		}
+	}
+}
+
+方法二、
+//回文数：是一种数字。如：98789, 这个数字正读是98789,倒读也是98789
+//正读倒读一样，所以这个数字就是回文数
+
+import java.util.Scanner;
+import java.util.*;
+public class HiJava {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Please input the number: ");
+		String word = sc.next();
+		int i = word.length();
+		int j = 0;
+		while (j <= (i / 2) - 1 && word.charAt(j) == word.charAt(i - j - 1))
+			j++;
+		if (j == i / 2)
+			System.out.println("Yes it is HuiWen.");
+		else
+			System.out.println("No it is not HuiWen.");
+		sc.close();
+	}
+}
+
+10、java中ArrayList和LinkedList的区别
+
+ArrayList实现了随机访问的接口，LinkedList实现了Quene的接口。
+ArrayList是基于数据实现的list，而LinkedList是基于链表实现的list。所以，ArrayList拥有着数组的特性，LinkedList拥有着链表的特性。
+优缺点
+ArrayList
+　优点：适合随机读取的时候，读取速度快，可以一步get(index)。
+　缺点：添加值很慢——一方面，添加数据在array中间的时候，需要移动后面的数；另一方面，当长度大于初始长度的时候，每添加一个数，都会需要扩容。
+
+LinkedList：双向链表
+　优点：添加值很快——添加在list中间也只需要更改指针；长度不固定。
+　实现栈和队列方面，LinkedList要优于ArrayList。
+  其它
+LinkedList的remove(int)和remove(Object)的方法的时间复杂度都是O(n),不是O(1).因为会有一个查找的过程。
+LinkedList的remove(int)要优于remove(Object)，因为remove(int)在查找的时候，会从链表的中间查找，如果int比中间小，找前半部分，否则找后半部分（类似二分查找）。
+ArrayList的增删比LinkedList的开销更大，因为除了有查找的时间复杂度外，还有增删的移动过程。
